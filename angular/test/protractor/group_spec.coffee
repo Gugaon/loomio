@@ -358,18 +358,6 @@ describe 'Group Page', ->
       page.click('.leave-group-form__add-coordinator')
       page.expectElement('.memberships-page__memberships h2')
 
-    it 'destroys group-related events and notifications', ->
-      page.loadPath 'setup_membership_request_approved_notification'
-      page.click '.group-welcome-modal__close-button'
-      page.click '.notifications__button'
-      page.expectText '.notifications__dropdown', 'approved your request'
-      page.click '.notifications__button'
-      page.click '.group-page-actions__button',
-                 '.group-page-actions__leave-group',
-                 '.leave-group-form__submit'
-      page.click '.notifications__button'
-      page.expectText '.notifications__dropdown', "You don't have any notifications"
-
   describe 'archiving a group', ->
 
     it 'allows a coordinator to archive a group', ->
@@ -396,8 +384,8 @@ describe 'Group Page', ->
       page.fillIn('#discussion-context', "I've had the time of my life")
       page.click('.discussion-form__submit')
       page.expectFlash('Thread started')
-      page.expectText('.thread-context', 'Nobody puts baby in a corner' )
-      page.expectText('.thread-context', "I've had the time of my life" )
+      page.expectText('.context-panel', 'Nobody puts baby in a corner' )
+      page.expectText('.context-panel', "I've had the time of my life" )
 
     it 'automatically saves drafts', ->
       page.click('.discussions-card__new-thread-button')

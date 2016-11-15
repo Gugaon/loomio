@@ -227,7 +227,6 @@ hu:
     new_comment: '<strong>{{name}}</strong> hozzászólt a következőhöz: <strong>{{discussion}}</strong>'
     comment_replied_to: '<strong>{{name}}</strong> válaszolt a hozzászólásodra, itt: <strong>{{discussion}}</strong>'
     comment_liked: '<strong>{{name}}</strong> like-olta a hozzászólásodat, itt: <strong>{{discussion}}</strong>'
-    user_mentioned: '<strong>{{name}}</strong> megemlített téged a <strong>{{title}}</strong> témában'
     membership_requested: '<strong>{{name}}</strong> tagságot kért a <strong>{{group}}</strong> csoportba'
     membership_request_approved: '<strong>{{name}}</strong> érvényesítette csatlakozási kérelmedet a <strong>{{group}}</strong> csoporthoz'
     user_added_to_group: '<strong>{{name}}</strong> hozzáadott téged a <strong>{{group}}</strong> csoporthoz'
@@ -295,7 +294,6 @@ hu:
     heading: Kérj belépőt a csoportba
     name_label: Név
     email_label: E-mail
-    introduction_label: 'Mutatkozz be!'
     submit_button: Kérj belépőt a csoportba
   group_page:
     thread_list:

@@ -36,7 +36,18 @@ EventBus.configure do |config|
 
 
   # send individual emails after user events
-  config.listen('membership_request_approved_event') { |event, user| UserMailer.delay(priority: 2).group_membership_approved(user, event.group) }
+  config.listen('membership_request_approved_event') { |event, user| UserMailer.delay(priority: 2).group_membership_approved(user, event.eventable.group) }
+  config.listen('membership_requested_event')        { |event| GroupMailer.new_membership_request(event.eventable) }
+
+  # notify user of acceptance to group
+  config.listen('user_added_to_group_event') do |event, user, message|
+    UserMailer.delay(priority: 1).added_to_group(
+      user:    event.eventable.user,
+      group:   event.eventable.group,
+      inviter: event.user,
+      message: message
+    )
+  end
 
   # add creator to group if one doesn't exist
   config.listen('membership_join_group') { |group, actor| group.update(creator: actor) unless group.creator_id.present? }
@@ -97,6 +108,11 @@ EventBus.configure do |config|
     MessageChannelService.publish(collection, to: actor)
   end
 
+  # alert clients that notifications have been read
+  config.listen('notification_viewed') do |actor|
+    MessageChannelService.publish(NotificationCollection.new(actor).serialize!, to: actor)
+  end
+
   # update discussion or comment versions_count when title or description edited
   config.listen('discussion_update', 'comment_update') do |model|
     model.update_versions_count
@@ -121,15 +137,16 @@ EventBus.configure do |config|
                 'user_mentioned_event',
                 'motion_closed_event',
                 'invitation_accepted_event',
-                'new_coordinator_event') { |event, user| event.notify!(user) }
+                'new_coordinator_event',
+                'user_added_to_group_event') { |event, user| event.notify!(user) }
 
-  # notify users of motion closing soon and motion outcome created
-  config.listen('motion_outcome_created_event', 'motion_closing_soon_event') do |event|
-    event.notifications.import event.users_to_notify.map { |user| event.notifications.build(user: user) }
+  # bulk notify users of events
+  config.listen('motion_outcome_created_event',
+                'motion_closing_soon_event',
+                'membership_requested_event',
+                'comment_liked_event') do |event|
+    event.notifications.import event.users_to_notify.map { |user| event.notify!(user, persist: false) }
   end
-
-  # notify users of comment liked
-  config.listen('comment_liked_event') { |event| event.notify!(event.comment.author) if event.notify_author? }
 
   # collect user deactivation response
   config.listen('user_deactivate') { |user, actor, params| UserDeactivationResponse.create(user: user, body: params[:deactivation_response]) }

@@ -26,6 +26,7 @@ class GroupSerializer < ActiveModel::Serializer
              :parent_members_can_see_discussions,
              :memberships_count,
              :invitations_count,
+             :pending_invitations_count,
              :membership_granted_upon,
              :discussion_privacy_options,
              :logo_url_medium,
@@ -34,14 +35,9 @@ class GroupSerializer < ActiveModel::Serializer
              :has_multiple_admins,
              :archived_at,
              :has_custom_cover,
-             :subscription_kind,
-             :subscription_plan,
-             :subscription_payment_method,
-             :subscription_expires_at,
              :is_subgroup_of_hidden_parent,
              :show_legacy_trial_expired_modal,
              :enable_experiments,
-             :locale,
              :experiences
 
   has_one :current_user_membership, serializer: MembershipSerializer, root: :memberships
@@ -60,22 +56,6 @@ class GroupSerializer < ActiveModel::Serializer
 
   def show_legacy_trial_expired_modal
     ENV['TRIAL_EXPIRED_GROUP_IDS'].to_s.split(' ').map(&:to_i).include? object.id
-  end
-
-  def subscription_kind
-    subscription.try(:kind)
-  end
-
-  def subscription_plan
-    subscription.try(:plan)
-  end
-
-  def subscription_payment_method
-    subscription.try(:payment_method)
-  end
-
-  def subscription_expires_at
-    subscription.try(:expires_at)
   end
 
   def logo_url_medium
@@ -104,10 +84,6 @@ class GroupSerializer < ActiveModel::Serializer
 
   def has_multiple_admins
     object.admin_memberships_count > 1
-  end
-
-  def subscription
-    @subscription ||= object.subscription
   end
 
   def cover_photo
