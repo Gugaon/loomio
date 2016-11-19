@@ -1,4 +1,4 @@
-CurrentUserData = Struct.new(:user, :restricted) do
+CurrentUserData = Struct.new(:user, :restricted, :seed_threads) do
   def data
     serializer.new(user, scope: serializer_scope, root: :current_user).as_json.tap do |json|
       json[:current_user].except!(:group_ids, :membership_ids)
@@ -20,7 +20,8 @@ CurrentUserData = Struct.new(:user, :restricted) do
       hash.merge!(
         notifications: notifications,
         unread:        unread,
-        reader_cache:  readers
+        reader_cache:  readers,
+        seed_threads:  Array(seed_threads)
       ) unless restricted || !user.is_logged_in?
     end
   end

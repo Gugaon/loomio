@@ -5,6 +5,7 @@ class Full::UserSerializer < UserSerializer
 
   has_many :memberships, serializer: MembershipSerializer, root: :memberships
   has_many :unread_threads, serializer: DiscussionSerializer, root: :discussions
+  has_many :seed_threads, serializer: DiscussionSerializer, root: :discussions
   has_many :notifications, serializer: NotificationSerializer, root: :notifications
 
   def memberships
@@ -13,6 +14,10 @@ class Full::UserSerializer < UserSerializer
 
   def unread_threads
     from_scope :unread
+  end
+
+  def seed_threads
+    from_scope :seed_threads
   end
 
   def notifications

@@ -3,14 +3,6 @@ angular.module('loomioApp').controller 'ThreadPageController', ($scope, $routePa
 
   @windowIsLarge = $mdMedia('gt-sm')
 
-  @requestedProposalKey = $routeParams.proposal or $location.search().proposal
-  @requestedCommentId   = parseInt($routeParams.comment or $location.search().comment)
-
-  handleCommentHash = do ->
-    if match = $location.hash().match /comment-(\d+)/
-      $location.search().comment = match[1]
-      $location.hash('')
-
   @performScroll = ->
     ScrollService.scrollTo @elementToFocus(), 150
     $rootScope.$broadcast 'triggerVoteForm', $location.search().position if @openVoteModal()
@@ -38,48 +30,19 @@ angular.module('loomioApp').controller 'ThreadPageController', ($scope, $routePa
     else
       '.context-panel'
 
-  @threadElementsLoaded = ->
-    @eventsLoaded and @proposalsLoaded
-
-  @init = (discussion) =>
-    if discussion and !@discussion?
-      @discussion = discussion
-      @sequenceIdToFocus = parseInt($location.search().from or @discussion.lastReadSequenceId)
-      @pageWindow = PaginationService.windowFor
-        current:  @sequenceIdToFocus
-        min:      @discussion.firstSequenceId
-        max:      @discussion.lastSequenceId
-        pageType: 'activityItems'
-
-      $rootScope.$broadcast 'viewingThread', @discussion
-      $rootScope.$broadcast 'setTitle', @discussion.title
-      $rootScope.$broadcast 'analyticsSetGroup', @discussion.group()
-      $rootScope.$broadcast 'currentComponent',
-        page: 'threadPage'
-        group: @discussion.group()
-        links:
-          canonical:   LmoUrlService.discussion(@discussion, {}, absolute: true)
-          rss:         LmoUrlService.discussion(@discussion) + '.xml' if !@discussion.private
-          prev:        LmoUrlService.discussion(@discussion, from: @pageWindow.prev) if @pageWindow.prev?
-          next:        LmoUrlService.discussion(@discussion, from: @pageWindow.next) if @pageWindow.next?
-
-  @init Records.discussions.find $routeParams.key
-  Records.discussions.findOrFetchById($routeParams.key).then @init, (error) ->
-    $rootScope.$broadcast('pageError', error)
-
-  $scope.$on 'threadPageEventsLoaded',    (e, event) =>
+  $scope.$on 'threadPageEventsLoaded', (e, event) =>
     $window.location.reload() if @discussion.requireReloadFor(event)
-    @eventsLoaded = true
-    @comment = Records.comments.find(@requestedCommentId) unless isNaN(@requestedCommentId)
+    requestedCommentId = parseInt($routeParams.comment or $location.search().comment)
+    @comment = Records.comments.find(requestedCommentId) unless isNaN(requestedCommentId)
     @performScroll() if @proposalsLoaded or !@discussion.anyClosedProposals()
+    @eventsLoaded = true
+
   $scope.$on 'threadPageProposalsLoaded', (event) =>
-    @proposalsLoaded = true
-    @proposal = Records.proposals.find(@requestedProposalKey)
+    requestedProposalKey = $routeParams.proposal or $location.search().proposal
+    @proposal = Records.proposals.find(requestedProposalKey)
     $rootScope.$broadcast 'setSelectedProposal', @proposal
     @performScroll() if @eventsLoaded
-
-  @group = ->
-    @discussion.group()
+    @proposalsLoaded = true
 
   @canStartProposal = ->
     AbilityService.canStartProposal(@discussion)
@@ -97,5 +60,29 @@ angular.module('loomioApp').controller 'ThreadPageController', ($scope, $routePa
 
   KeyEventService.registerKeyEvent $scope, 'pressedUpArrow', checkInView
   KeyEventService.registerKeyEvent $scope, 'pressedDownArrow', checkInView
+
+  Records.findOrFetchById($routeParams.key).then (discussion) =>
+    return unless discussion
+    @discussion = discussion
+    @sequenceIdToFocus = parseInt($location.search().from or @discussion.lastReadSequenceId)
+    @pageWindow = PaginationService.windowFor
+      current:  @sequenceIdToFocus
+      min:      @discussion.firstSequenceId
+      max:      @discussion.lastSequenceId
+      pageType: 'activityItems'
+
+    $rootScope.$broadcast 'viewingThread', @discussion
+    $rootScope.$broadcast 'setTitle', @discussion.title
+    $rootScope.$broadcast 'analyticsSetGroup', @discussion.group()
+    $rootScope.$broadcast 'currentComponent',
+      page: 'threadPage'
+      group: @discussion.group()
+      links:
+        canonical:   LmoUrlService.discussion(@discussion, {}, absolute: true)
+        rss:         LmoUrlService.discussion(@discussion) + '.xml' if !@discussion.private
+        prev:        LmoUrlService.discussion(@discussion, from: @pageWindow.prev) if @pageWindow.prev?
+        next:        LmoUrlService.discussion(@discussion, from: @pageWindow.next) if @pageWindow.next?
+  , (error) ->
+    $rootScope.$broadcast('pageError', error)
 
   return

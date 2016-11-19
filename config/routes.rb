@@ -215,6 +215,8 @@ Loomio::Application.routes.draw do
   get 'g/:key(/:slug)'                     => 'groups#show',      as: :group
   get 'd/:key(/:slug)'                     => 'discussions#show', as: :discussion
   get 'd/:key/comment/:comment_id'         => 'discussions#show', as: :comment
+  get 'd/:key/proposal/:proposal'          => 'discussions#show', as: :discussion_motion
+  get 'd/:key/proposal/:proposal/outcome'  => 'discussions#show', as: :discussion_motion_outcome
   get 'm/:key(/:slug)'                     => 'motions#show',     as: :motion
   get 'u/:username/'                       => 'users#show',       as: :user
 
@@ -229,9 +231,6 @@ Loomio::Application.routes.draw do
   get 'apps/authorized'                    => 'application#boot_angular_ui'
   get 'apps/registered/:id'                => 'application#boot_angular_ui'
   get 'apps/registered/:id/:slug'          => 'application#boot_angular_ui'
-  get 'd/:key/proposal/:proposal'          => 'application#boot_angular_ui', as: :discussion_motion
-  get 'd/:key/comment/:comment'            => 'application#boot_angular_ui', as: :discussion_comment
-  get 'd/:key/proposal/:proposal/outcome'  => 'application#boot_angular_ui', as: :discussion_motion_outcome
   get 'g/:key/membership_requests'         => 'application#boot_angular_ui', as: :group_membership_requests
   get 'g/:key/memberships'                 => 'application#boot_angular_ui', as: :group_memberships
   get 'g/:key/previous_proposals'          => 'application#boot_angular_ui', as: :group_previous_proposals
