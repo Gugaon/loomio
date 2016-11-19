@@ -61,7 +61,7 @@ angular.module('loomioApp').controller 'ThreadPageController', ($scope, $routePa
   KeyEventService.registerKeyEvent $scope, 'pressedUpArrow', checkInView
   KeyEventService.registerKeyEvent $scope, 'pressedDownArrow', checkInView
 
-  Records.findOrFetchById($routeParams.key).then (discussion) =>
+  Records.discussions.findOrFetchById($routeParams.key).then (discussion) =>
     return unless discussion
     @discussion = discussion
     @sequenceIdToFocus = parseInt($location.search().from or @discussion.lastReadSequenceId)

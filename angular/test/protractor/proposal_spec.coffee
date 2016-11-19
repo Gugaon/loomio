@@ -106,8 +106,9 @@ describe 'Proposals', ->
 
   describe 'voting by email', ->
 
-    beforeEach ->
-      threadHelper.loadWithActiveProposal()
+    it 'opens the voting modal with the correct position', ->
+      page.loadPath 'setup_proposal_to_vote'
+      page.expectText '.modal-body', 'I agree'
 
   describe 'undecided members', ->
 

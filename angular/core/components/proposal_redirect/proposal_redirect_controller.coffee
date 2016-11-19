@@ -10,6 +10,6 @@ angular.module('loomioApp').controller 'ProposalRedirectController', ($timeout, 
         $location.path LmoUrlService.proposal Records.proposals.find($routeParams.key),
           position: $location.search().position
     , errorCallback
-  , errorcallback
+  , errorCallback
 
   return

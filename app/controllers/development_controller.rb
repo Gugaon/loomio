@@ -459,6 +459,12 @@ class DevelopmentController < ApplicationController
     redirect_to discussion_url(test_discussion)
   end
 
+  def setup_proposal_to_vote
+    sign_in patrick
+    test_proposal
+    redirect_to motion_url(test_proposal, position: 'yes')
+  end
+
   def setup_proposal_with_votes
     sign_in patrick
     test_vote

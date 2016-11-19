@@ -23,10 +23,10 @@ describe DiscussionsController do
       expect(assigns(:metadata)[:title]).to eq discussion.title
     end
 
-    it 'does not set metadata for private discussions' do
+    it 'redirects to sign in for private discussions' do
       discussion.update(private: true)
       get :show, key: discussion.key
-      expect(assigns(:metadata)[:title]).to be_nil
+      expect(response).to redirect_to new_user_session_url
     end
   end
 end
